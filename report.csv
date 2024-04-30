@@ -1,0 +1,15 @@
+2,3,4,5,6,7
+"| dbxquery connection=""rizhiyi_tmp"" maxrows=200000 query=""SELECT white_list_type FROM socketAlarm WHERE belong_org_resource_id in (select id from GdtelOrgResource where name like '市分公司/东莞分公司%') AND alert_type in('Windows-绕行4A','Linux-绕行4A') and create_time BETWEEN  DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 MONTH), '%Y-%m-01') AND LAST_DAY( CURDATE( ) - INTERVAL 1 MONTH ) ""
+|where !match(white_list_type,'.*白名单$')
+| composite count() as a 
+| eval a=tostring(tolong(a))","| dbxquery connection=""rizhiyi_tmp"" maxrows=200000 query=""SELECT audit_result_id FROM socketAlarm WHERE belong_org_resource_id in (select id from GdtelOrgResource where name like '市分公司/东莞分公司%') AND alert_type in('Windows-绕行4A','Linux-绕行4A') and create_time BETWEEN  DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 MONTH), '%Y-%m-01') AND LAST_DAY( CURDATE( ) - INTERVAL 1 MONTH ) and white_list_type NOT LIKE '%白名单' and audit_result_id is not null""
+| composite count() as a 
+| eval a=tostring(tolong(a))","| dbxquery connection=""rizhiyi_tmp"" maxrows=200000 query=""SELECT audit_result_id FROM socketAlarm WHERE belong_org_resource_id in (select id from GdtelOrgResource where name like '市分公司/东莞分公司%') AND alert_type in('Windows-绕行4A','Linux-绕行4A') and create_time BETWEEN  DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 MONTH), '%Y-%m-01') AND LAST_DAY( CURDATE( ) - INTERVAL 1 MONTH ) and white_list_type NOT LIKE '%白名单' and audit_result_id is null""
+| composite count() as a 
+| eval a=tostring(tolong(a))","| dbxquery connection=""rizhiyi_tmp"" maxrows=200000 query=""select id from socketAlarm where belong_org_resource_id in (select id from GdtelOrgResource where name like '市分公司/东莞分公司%') AND alert_type  in('Linux-暴力破解','Windows-暴力破解') and create_time BETWEEN  DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 MONTH), '%Y-%m-01') AND LAST_DAY( CURDATE( ) - INTERVAL 1 MONTH ) and white_list_type NOT LIKE '%白名单' ""
+| composite count() as a 
+| eval a=tostring(tolong(a))","| dbxquery connection=""rizhiyi_tmp"" maxrows=200000 query=""select audit_result_id  from socketAlarm  where belong_org_resource_id in (select id from GdtelOrgResource where name like '市分公司/东莞分公司%') AND alert_type in('Linux-暴力破解','Windows-暴力破解') and create_time BETWEEN  DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 MONTH), '%Y-%m-01') AND LAST_DAY( CURDATE( ) - INTERVAL 1 MONTH ) and white_list_type NOT LIKE '%白名单' and audit_result_id is not null""
+| composite count() as a 
+| eval a=tostring(tolong(a))","| dbxquery connection=""rizhiyi_tmp"" maxrows=200000 query=""select audit_result_id from socketAlarm   where belong_org_resource_id in (select id from GdtelOrgResource where name like '市分公司/东莞分公司%') AND alert_type in('Linux-暴力破解','Windows-暴力破解') and create_time BETWEEN  DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 MONTH), '%Y-%m-01') AND LAST_DAY( CURDATE( ) - INTERVAL 1 MONTH ) and white_list_type NOT LIKE '%白名单' and audit_result_id is null""
+| composite count() as a 
+| eval a=tostring(tolong(a))"

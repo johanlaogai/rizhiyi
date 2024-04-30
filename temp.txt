@@ -1,0 +1,97 @@
+select count(*)
+from (select belong_org_resource_id,belong_platform_id,alarm_id from socketAlarm where alarm_status=1 and alert_type in ('Linux-绕行4A','Windows-绕行4A')) sta 
+join GdtelOrgResource gor on sta.belong_org_resource_id=gor.id AND gor.parent_org_id in (-3,-2,-1,3409) AND gor.name != '直属部门/智能云网调度运营中心/网络和信息安全操作中心'
+#join GdtelOrgBusiness gob on sta.belong_platform_id=gob.org_id
+join GdtelOrgResource gor2 on gor.parent_org_id = gor2.org_id
+
+from GdtelNewLogAudit gnla 
+from socketAlarm 
+
+and occur_time >= FROM_UNIXTIME(round(${globalTimeRange.start}/1000)) AND occur_time <= FROM_UNIXTIME(round(${globalTimeRange.end}/1000))
+
+| dbxquery connection="rizhiyi_tmp" maxrows=10000000 query="select name from GdtelOrgResource where parent_org_id=-3"
+| append [[
+    | dbxquery connection="rizhiyi_tmp" maxrows=10000000 query="select name from GdtelOrgResource where parent_org_id=-2"
+]]
+| append [[
+    | dbxquery connection="rizhiyi_tmp" maxrows=10000000 query="select name from GdtelOrgResource where parent_org_id=-1"
+]]
+| append [[
+    | dbxquery connection="rizhiyi_tmp" maxrows=10000000 query="select name from GdtelOrgResource where parent_org_id=3409"
+]]
+| where (name != "直属部门/智能云网调度运营中心/网络和信息安全操作中心")
+| join type=left name [[
+    | dbxquery connection="rizhiyi_tmp" maxrows=10000000 query="select alarm_id, alert_type, belong_platform_id as resource_id from socketAlarm where occur_time >= FROM_UNIXTIME(round(${globalTimeRange.start}/1000)) AND occur_time <= FROM_UNIXTIME(round(${globalTimeRange.end}/1000)) AND alarm_status=1 AND (alert_type='Linux-绕行4A' OR alert_type='Windows-绕行4A')"
+    | join type=inner resource_id [[
+        | dbxquery connection="rizhiyi_tmp" maxrows=10000000 query="select org_id as resource_id, parent_org_id as business_id from GdtelOrgBusiness"
+        | join type=left business_id [[
+            | dbxquery connection="rizhiyi_tmp" maxrows=10000000 query="select org_id as business_id, parent_org_id as parent_id from GdtelOrgResource"
+        ]]
+        | join type=left parent_id [[
+            | dbxquery connection="rizhiyi_tmp" maxrows=10000000 query="select name, org_id as parent_id from GdtelOrgResource"
+        ]]
+    ]]
+    | join type=left alarm_id [[
+        | dbxquery connection="rizhiyi_tmp" maxrows=10000000 query="select related_id as alarm_id, audit_result from GdtelNewLogAudit"
+    ]]
+    | where empty(audit_result)
+    | stats count() as cnt by name
+]]
+| join type=left name [[
+    | dbxquery connection="rizhiyi_tmp" maxrows=10000000 query="select alarm_id, alert_type, belong_org_resource_name as name from socketAlarm where occur_time >= FROM_UNIXTIME(round(${globalTimeRange.start}/1000)) AND occur_time <= FROM_UNIXTIME(round(${globalTimeRange.end}/1000)) AND alarm_status=1 AND (alert_type='Linux-绕行4A' OR alert_type='Windows-绕行4A')"
+    | join type=inner resource_id [[
+        | dbxquery connection="rizhiyi_tmp" maxrows=10000000 query="select org_id as resource_id, parent_org_id as business_id from GdtelOrgBusiness"
+        | join type=left business_id [[
+            | dbxquery connection="rizhiyi_tmp" maxrows=10000000 query="select org_id as business_id, parent_org_id as parent_id from GdtelOrgResource"
+        ]]
+        | join type=left parent_id [[
+            | dbxquery connection="rizhiyi_tmp" maxrows=10000000 query="select name, org_id as parent_id from GdtelOrgResource"
+        ]]
+    ]]
+    | join type=left alarm_id [[
+        | dbxquery connection="rizhiyi_tmp" maxrows=10000000 query="select related_id as alarm_id, audit_result from GdtelNewLogAudit"
+    ]]
+    | where !empty(audit_result)
+    | stats count() as cnt1 by name
+]]
+| join type=left name [[
+    | dbxquery connection="rizhiyi_tmp" maxrows=10000000 query="select alarm_id, alert_type, belong_org_resource_name as name from socketAlarm where occur_time >= FROM_UNIXTIME(round(${globalTimeRange.start}/1000)) AND occur_time <= FROM_UNIXTIME(round(${globalTimeRange.end}/1000)) AND alarm_status=1 AND (alert_type='Linux-暴力破解' OR alert_type='Windows-暴力破解')"
+    | join type=inner resource_id [[
+        | dbxquery connection="rizhiyi_tmp" maxrows=10000000 query="select org_id as resource_id, parent_org_id as business_id from GdtelOrgBusiness"
+        | join type=left business_id [[
+            | dbxquery connection="rizhiyi_tmp" maxrows=10000000 query="select org_id as business_id, parent_org_id as parent_id from GdtelOrgResource"
+        ]]
+        | join type=left parent_id [[
+            | dbxquery connection="rizhiyi_tmp" maxrows=10000000 query="select name, org_id as parent_id from GdtelOrgResource"
+        ]]
+    ]]
+    | join type=left alarm_id [[
+        | dbxquery connection="rizhiyi_tmp" maxrows=10000000 query="select related_id as alarm_id, audit_result from GdtelNewLogAudit"
+    ]]
+    | where !empty(audit_result)
+    | stats count() as cnt2 by name
+]]
+| join type=left name [[
+    | dbxquery connection="rizhiyi_tmp" maxrows=10000000 query="select alarm_id, alert_type, belong_org_resource_name as name from socketAlarm where occur_time >= FROM_UNIXTIME(round(${globalTimeRange.start}/1000)) AND occur_time <= FROM_UNIXTIME(round(${globalTimeRange.end}/1000)) AND alarm_status=1 AND (alert_type='Linux-暴力破解' OR alert_type='Windows-暴力破解')"
+    | where (alert_type=="Liunx-暴力破解" || alert_type=="Windows-暴力破解")
+    | join type=inner resource_id [[
+        | dbxquery connection="rizhiyi_tmp" maxrows=10000000 query="select org_id as resource_id, parent_org_id as business_id from GdtelOrgBusiness"
+        | join type=left business_id [[
+            | dbxquery connection="rizhiyi_tmp" maxrows=10000000 query="select org_id as business_id, parent_org_id as parent_id from GdtelOrgResource"
+        ]]
+        | join type=left parent_id [[
+            | dbxquery connection="rizhiyi_tmp" maxrows=10000000 query="select name, org_id as parent_id from GdtelOrgResource"
+        ]]
+    ]]
+    | join type=left parent_id [[
+        | dbxquery connection="rizhiyi_tmp" maxrows=10000000 query="select related_id as alarm_id, audit_result from GdtelNewLogAudit"
+    ]]
+    | where empty(audit_result)
+    | stats count() as cnt3 by name
+]]
+| eval cnt=if(empty(cnt), 0, cnt), cnt1=if(empty(cnt1), 0, cnt1), cnt2=if(empty(cnt2), 0, cnt2), cnt3=if(empty(cnt3), 0, cnt3)
+| rename cnt as "4A绕行未处理", cnt1 as "4A绕行已处理", cnt2 as "登录遍历未处理", cnt3 as "登录遍历已处理", name as "组织机构"
+
+
+
+http://10.120.54.230/app/siem/threats?_queryData_=%7B%22command%22%3A%22now%2Fd%2Cnow%22%2C%22startTime%22%3A1709136000000%2C%22endTime%22%3A1709178367219%2C%22threat_level%22%3A%5B%5D%2C%22threat_state%22%3A%5B0%5D%2C%22issue_state%22%3A%5B%5D%2C%22threat_ids%22%3A%5B%5D%2C%22basicFilterFields%22%3A%7B%22threat_classif%22%3A%5B%22%E8%B5%84%E4%BA%A7%E5%AE%89%E5%85%A8%22%5D%7D%7D
